@@ -1,0 +1,118 @@
+name: CD - Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0, 1.2.3). Leave empty to increment patch version.'
+        required: false
+        type: string
+      increment:
+        description: 'Version increment (if version is empty)'
+        required: false
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Update version
+      shell: pwsh
+      run: |
+        if ("${{ inputs.version }}" -ne "") {
+          Write-Host "Setting explicit version: ${{ inputs.version }}"
+          ./update-version.ps1 -Version "${{ inputs.version }}"
+        } else {
+          $increment = "${{ inputs.increment }}"
+          Write-Host "Incrementing $increment version"
+          if ($increment -eq "major") {
+            ./update-version.ps1 -IncrementMajor
+          } elseif ($increment -eq "minor") {
+            ./update-version.ps1 -IncrementMinor
+          } else {
+            ./update-version.ps1 -IncrementPatch
+          }
+        }
+    
+    - name: Get version
+      id: get_version
+      shell: pwsh
+      run: |
+        $content = Get-Content Version.props -Raw
+        $version = [regex]::Match($content, '<Version>(.*?)</Version>').Groups[1].Value
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        Write-Host "Version to publish: $version"
+    
+    - name: Commit version change
+      id: commit_version
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add Version.props
+        if git diff --staged --quiet; then
+          echo "No version changes to commit"
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          git commit -m "chore: bump version to ${{ steps.get_version.outputs.version }}"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal
+    
+    - name: Pack
+      run: dotnet pack --configuration Release --no-build --output ./artifacts
+    
+    - name: Push to NuGet
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    - name: Push version commit
+      if: steps.commit_version.outputs.has_changes == 'true'
+      run: git push
+    
+    - name: Create Git tag
+      run: |
+        TAG="v${{ steps.get_version.outputs.version }}"
+        if git rev-parse "$TAG" >/dev/null 2>&1; then
+          echo "Tag $TAG already exists, skipping tag creation"
+        else
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "Created and pushed tag $TAG"
+        fi
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        name: Release ${{ steps.get_version.outputs.version }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: ./artifacts/*.nupkg

@@ -1,0 +1,61 @@
+name: CD - Preview
+
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Get base version and create preview version
+      id: get_version
+      shell: pwsh
+      run: |
+        $content = Get-Content Version.props -Raw
+        $baseVersion = [regex]::Match($content, '<Version>(.*?)</Version>').Groups[1].Value
+        
+        # Create preview version with timestamp
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        $shortSha = "${{ github.sha }}".Substring(0, 7)
+        $previewVersion = "$baseVersion-preview.$timestamp+$shortSha"
+        
+        echo "base_version=$baseVersion" >> $env:GITHUB_OUTPUT
+        echo "preview_version=$previewVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "Base version: $baseVersion"
+        Write-Host "Preview version: $previewVersion"
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore /p:Version=${{ steps.get_version.outputs.preview_version }}
+    
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal
+    
+    - name: Pack
+      run: dotnet pack --configuration Release --no-build --output ./artifacts /p:Version=${{ steps.get_version.outputs.preview_version }}
+    
+    - name: Push to NuGet (preview)
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: preview-package
+        path: ./artifacts/*.nupkg

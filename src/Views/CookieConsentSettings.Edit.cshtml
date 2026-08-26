@@ -1,0 +1,84 @@
+@model Griesoft.OrchardCore.CookieConsent.ViewModels.CookieConsentSettingsViewModel
+
+<h5>@T["Cookie Consent"]</h5>
+
+<div class="mb-3">
+    <div class="form-check">
+        <input asp-for="Enabled" type="checkbox" class="form-check-input" />
+        <label asp-for="Enabled" class="form-check-label">@T["Enable the consent banner"]</label>
+        <span class="hint dashed">@T["Show the cookie consent banner on the site front end."]</span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="BannerTitle" class="form-label">@T["Banner title"]</label>
+    <input asp-for="BannerTitle" class="form-control" />
+    <span class="hint">@T["Leave empty to use the built-in default."]</span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="BannerDescription" class="form-label">@T["Banner description"]</label>
+    <textarea asp-for="BannerDescription" class="form-control" rows="3"></textarea>
+    <span class="hint">@T["Leave empty to use the built-in default."]</span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Layout" class="form-label">@T["Layout"]</label>
+    <select asp-for="Layout" class="form-select">
+        <option value="box">@T["Box"]</option>
+        <option value="cloud">@T["Cloud"]</option>
+        <option value="bar">@T["Bar"]</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Position" class="form-label">@T["Position"]</label>
+    <select asp-for="Position" class="form-select">
+        <option value="bottom left">@T["Bottom left"]</option>
+        <option value="bottom center">@T["Bottom center"]</option>
+        <option value="bottom right">@T["Bottom right"]</option>
+        <option value="middle center">@T["Middle center"]</option>
+        <option value="top left">@T["Top left"]</option>
+        <option value="top center">@T["Top center"]</option>
+        <option value="top right">@T["Top right"]</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label asp-for="PrimaryColor" class="form-label">@T["Primary color"]</label>
+    <input asp-for="PrimaryColor" class="form-control" placeholder="#0d6efd" />
+    <span class="hint">@T["Any CSS color value, applied to the banner buttons."]</span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="LogoUrl" class="form-label">@T["Logo URL"]</label>
+    <input asp-for="LogoUrl" class="form-control" />
+</div>
+
+<h5>@T["Cookie categories"]</h5>
+<p class="hint">@T["The \"necessary\" category is always present and cannot be disabled by visitors. Opt-in mode, symmetric accept/reject buttons and script blocking are fixed for compliance and cannot be changed here."]</p>
+
+<div class="mb-3">
+    <div class="form-check">
+        <input asp-for="EnableFunctionalityCategory" type="checkbox" class="form-check-input" />
+        <label asp-for="EnableFunctionalityCategory" class="form-check-label">@T["Offer the \"functionality\" category"]</label>
+    </div>
+    <div class="form-check">
+        <input asp-for="EnableAnalyticsCategory" type="checkbox" class="form-check-input" />
+        <label asp-for="EnableAnalyticsCategory" class="form-check-label">@T["Offer the \"analytics\" category"]</label>
+    </div>
+    <div class="form-check">
+        <input asp-for="EnableMarketingCategory" type="checkbox" class="form-check-input" />
+        <label asp-for="EnableMarketingCategory" class="form-check-label">@T["Offer the \"marketing\" category"]</label>
+    </div>
+</div>
+
+<h5>@T["Consent records"]</h5>
+
+<div class="mb-3">
+    <div class="form-check">
+        <input asp-for="LogConsentRecords" type="checkbox" class="form-check-input" />
+        <label asp-for="LogConsentRecords" class="form-check-label">@T["Log consent decisions"]</label>
+        <span class="hint dashed">@T["Consent decisions are reported back to the server and logged."]</span>
+    </div>
+</div>

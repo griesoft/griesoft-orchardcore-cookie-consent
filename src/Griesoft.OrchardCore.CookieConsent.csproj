@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<Import Project="..\Version.props" />
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AssemblyName>Griesoft.OrchardCore.CookieConsent</AssemblyName>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Joonas Griesinger</Authors>
+		<Company>Griesoft</Company>
+		<Copyright>Copyright (c) Griesoft 2026</Copyright>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageId>Griesoft.OrchardCore.CookieConsent</PackageId>
+		<Title>Orchard Core Cookie Consent Module</Title>
+		<Description>A GDPR/TDDDG-compliant cookie consent banner for Orchard Core with per-tenant branding, script blocking, and consent record logging. An Orchard Core module by Griesoft.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>cookieconsent;cookie;consent;gdpr;tdddg;privacy;orchardcore;module;aspnetcore;griesoft</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<RepositoryUrl>https://github.com/griesoft/griesoft-orchardcore-cookie-consent</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/griesoft/griesoft-orchardcore-cookie-consent</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<OrchardCoreModules
+			Include="$(AssemblyName)"
+			Name="Cookie Consent"
+			Author="$(Company)" Website="https://griesoft.com"
+			Version="$(Version)"
+			Description="A GDPR/TDDDG-compliant cookie consent banner with per-tenant branding, script blocking, and consent record logging."
+			Category="Privacy"
+			Tags="cookieconsent;cookie;consent;gdpr;privacy;orchardcore"
+			DefaultTenant="false"
+			AlwaysEnabled="false"
+			EnabledByDependencyOnly="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OrchardCore.Admin.Abstractions" Version="2.2.1" />
+		<PackageReference Include="OrchardCore.ContentManagement" Version="2.2.1" />
+		<PackageReference Include="OrchardCore.DisplayManagement" Version="2.2.1" />
+		<PackageReference Include="OrchardCore.Module.Targets" Version="2.2.1" />
+		<PackageReference Include="OrchardCore.Navigation.Core" Version="2.2.1" />
+		<PackageReference Include="OrchardCore.ResourceManagement" Version="2.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+</Project>
