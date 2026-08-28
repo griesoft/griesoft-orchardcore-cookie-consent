@@ -27,8 +27,8 @@ A GDPR/TDDDG-compliant cookie consent banner for Orchard Core, built on
 
 ## Requirements
 
-- .NET 8
-- Orchard Core 2.2.1 (the version referenced by this module)
+- .NET 10
+- Orchard Core 3.0.1 (the version referenced by this module)
 
 ## Installation
 

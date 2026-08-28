@@ -6,7 +6,7 @@ namespace Griesoft.OrchardCore.CookieConsent.Services;
 /// <summary>
 /// Placeholder consent record store that writes decisions to the application log.
 /// </summary>
-public class LoggingConsentRecordService : IConsentRecordService
+public sealed class LoggingConsentRecordService : IConsentRecordService
 {
     private readonly ILogger<LoggingConsentRecordService> _logger;
 

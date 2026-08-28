@@ -3,7 +3,7 @@ using Griesoft.OrchardCore.CookieConsent.Filters;
 using Griesoft.OrchardCore.CookieConsent.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OrchardCore.DisplayManagement.Handlers;
 using OrchardCore.Modules;
 using OrchardCore.Navigation;
@@ -21,11 +21,14 @@ public sealed class Startup : StartupBase
     /// <inheritdoc />
     public override void ConfigureServices(IServiceCollection services)
     {
+        // Neither ASP.NET Core nor Orchard Core registers TimeProvider by default.
+        services.TryAddSingleton(TimeProvider.System);
+
         services.AddScoped<IDisplayDriver<ISite>, CookieConsentSettingsDisplayDriver>();
         services.AddScoped<INavigationProvider, AdminMenu>();
         services.AddScoped<IPermissionProvider, Permissions>();
         services.AddScoped<IConsentRecordService, LoggingConsentRecordService>();
-        services.AddTransient<IConfigureOptions<ResourceManagementOptions>, ResourceManagementOptionsConfiguration>();
+        services.AddResourceConfiguration<ResourceManagementOptionsConfiguration>();
 
         services.Configure<MvcOptions>(options =>
         {

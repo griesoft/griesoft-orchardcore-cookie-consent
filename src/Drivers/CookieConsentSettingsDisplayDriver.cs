@@ -12,7 +12,7 @@ namespace Griesoft.OrchardCore.CookieConsent.Drivers;
 /// <summary>
 /// The display driver for the cookie consent settings editor group.
 /// </summary>
-public class CookieConsentSettingsDisplayDriver : SiteDisplayDriver<CookieConsentSettings>
+public sealed class CookieConsentSettingsDisplayDriver : SiteDisplayDriver<CookieConsentSettings>
 {
     /// <summary>
     /// The settings editor group ID.
@@ -92,6 +92,6 @@ public class CookieConsentSettingsDisplayDriver : SiteDisplayDriver<CookieConsen
     {
         var user = _httpContextAccessor.HttpContext?.User;
 
-        return user != null && await _authorizationService.AuthorizeAsync(user, Permissions.ManageCookieConsentSettings);
+        return user != null && await _authorizationService.AuthorizeAsync(user, CookieConsentPermissions.ManageCookieConsentSettings);
     }
 }
