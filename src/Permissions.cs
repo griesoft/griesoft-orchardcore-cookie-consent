@@ -1,11 +1,12 @@
+using global::OrchardCore;
 using OrchardCore.Security.Permissions;
 
 namespace Griesoft.OrchardCore.CookieConsent;
 
 /// <summary>
-/// Cookie consent settings permissions.
+/// The permissions defined by the Cookie Consent module.
 /// </summary>
-public class Permissions : IPermissionProvider
+public static class CookieConsentPermissions
 {
     /// <summary>
     /// Allows managing the tenant's cookie consent settings.
@@ -13,22 +14,28 @@ public class Permissions : IPermissionProvider
     public static readonly Permission ManageCookieConsentSettings = new(
         nameof(ManageCookieConsentSettings),
         "Manage cookie consent settings.");
+}
+
+/// <summary>
+/// Cookie consent settings permission provider.
+/// </summary>
+public sealed class Permissions : IPermissionProvider
+{
+    private readonly IEnumerable<Permission> _allPermissions =
+    [
+        CookieConsentPermissions.ManageCookieConsentSettings,
+    ];
 
     /// <inheritdoc />
-    public Task<IEnumerable<Permission>> GetPermissionsAsync() => Task.FromResult(new[]
-    {
-        ManageCookieConsentSettings,
-    }
-    .AsEnumerable());
+    public Task<IEnumerable<Permission>> GetPermissionsAsync() => Task.FromResult(_allPermissions);
 
     /// <inheritdoc />
     public IEnumerable<PermissionStereotype> GetDefaultStereotypes() =>
-    new[]
-    {
+    [
         new PermissionStereotype
         {
-            Name = "Administrator",
-            Permissions = new[] { ManageCookieConsentSettings },
+            Name = OrchardCoreConstants.Roles.Administrator,
+            Permissions = _allPermissions,
         },
-    };
+    ];
 }

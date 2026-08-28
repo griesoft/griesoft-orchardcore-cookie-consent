@@ -3,7 +3,6 @@ using Griesoft.OrchardCore.CookieConsent.Filters;
 using Griesoft.OrchardCore.CookieConsent.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using OrchardCore.DisplayManagement.Handlers;
 using OrchardCore.Modules;
 using OrchardCore.Navigation;
@@ -25,7 +24,7 @@ public sealed class Startup : StartupBase
         services.AddScoped<INavigationProvider, AdminMenu>();
         services.AddScoped<IPermissionProvider, Permissions>();
         services.AddScoped<IConsentRecordService, LoggingConsentRecordService>();
-        services.AddTransient<IConfigureOptions<ResourceManagementOptions>, ResourceManagementOptionsConfiguration>();
+        services.AddResourceConfiguration<ResourceManagementOptionsConfiguration>();
 
         services.Configure<MvcOptions>(options =>
         {

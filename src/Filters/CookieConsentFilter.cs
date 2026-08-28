@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OrchardCore.Admin;
-using OrchardCore.Entities;
 using OrchardCore.ResourceManagement;
 using OrchardCore.Settings;
 
@@ -15,7 +14,7 @@ namespace Griesoft.OrchardCore.CookieConsent.Filters;
 /// Injects the cookie consent banner assets and the tenant-specific configuration
 /// into every full front-end page.
 /// </summary>
-public class CookieConsentFilter : IAsyncResultFilter
+public sealed class CookieConsentFilter : IAsyncResultFilter
 {
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -37,7 +36,7 @@ public class CookieConsentFilter : IAsyncResultFilter
         if ((context.Result is ViewResult || context.Result is PageResult)
             && !AdminAttribute.IsApplied(context.HttpContext))
         {
-            var settings = (await _siteService.GetSiteSettingsAsync()).As<CookieConsentSettings>();
+            var settings = await _siteService.GetSettingsAsync<CookieConsentSettings>();
 
             if (settings.Enabled)
             {

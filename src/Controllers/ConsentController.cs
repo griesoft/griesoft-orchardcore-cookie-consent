@@ -2,7 +2,6 @@ using Griesoft.OrchardCore.CookieConsent.Models;
 using Griesoft.OrchardCore.CookieConsent.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OrchardCore.Entities;
 using OrchardCore.Settings;
 
 namespace Griesoft.OrchardCore.CookieConsent.Controllers;
@@ -11,17 +10,22 @@ namespace Griesoft.OrchardCore.CookieConsent.Controllers;
 /// Receives consent decisions posted by the client-side banner.
 /// </summary>
 [Route("cookieconsent")]
-public class ConsentController : Controller
+public sealed class ConsentController : Controller
 {
     private readonly IConsentRecordService _consentRecordService;
     private readonly ISiteService _siteService;
+    private readonly TimeProvider _timeProvider;
 
     /// <summary>
     /// </summary>
-    public ConsentController(IConsentRecordService consentRecordService, ISiteService siteService)
+    public ConsentController(
+        IConsentRecordService consentRecordService,
+        ISiteService siteService,
+        TimeProvider timeProvider)
     {
         _consentRecordService = consentRecordService;
         _siteService = siteService;
+        _timeProvider = timeProvider;
     }
 
     /// <summary>
@@ -33,7 +37,7 @@ public class ConsentController : Controller
     [IgnoreAntiforgeryToken]
     public async Task<IActionResult> Record([FromBody] ConsentRecord record)
     {
-        var settings = (await _siteService.GetSiteSettingsAsync()).As<CookieConsentSettings>();
+        var settings = await _siteService.GetSettingsAsync<CookieConsentSettings>();
 
         if (!settings.Enabled || !settings.LogConsentRecords)
         {
@@ -45,7 +49,7 @@ public class ConsentController : Controller
             return BadRequest();
         }
 
-        record.RecordedUtc = DateTime.UtcNow;
+        record.RecordedUtc = _timeProvider.GetUtcNow().UtcDateTime;
 
         await _consentRecordService.RecordAsync(record);
 
